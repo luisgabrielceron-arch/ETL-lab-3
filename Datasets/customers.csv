@@ -1,0 +1,25 @@
+customer_id,name,city,country,age
+5001,Laura Rodríguez,Cali,Colombia,64
+5002,Carlos García,CDMX,Mexico,47
+5003,Sofía Ramírez,CDMX,Mexico,56
+5004,Sofía Ramírez,Medellín,Colombia,60
+5005,Ana Pérez,CDMX,Mexico,35
+5006,Mateo Ramírez,Monterrey,Mexico,23
+5007,María Ramírez,Monterrey,Mexico,33
+5008,Andrés Rodríguez,Cali,Colombia,30
+5009,María Rodríguez,Santiago,Chile,59
+5010,Mateo Martínez,Barranquilla,Colombia,58
+5011,Jorge Ramírez,Santiago,Chile,46
+5012,Andrés Martínez,Concepción,Chile,65
+5013,Carlos López,Santiago,Chile,55
+5014,Luis Ramírez,CDMX,Mexico,27
+5015,Ana Martínez,Monterrey,Mexico,41
+5016,Mateo Ramírez,Guadalajara,Mexico,39
+5017,Carlos Gómez,Concepción,Chile,22
+5018,Laura Torres,Monterrey,Mexico,45
+5019,Diego Ramírez,Santiago,Chile,30
+5020,Carlos Torres,Monterrey,Mexico,59
+5021,Luis Sánchez,Barranquilla,Colombia,29
+5022,Luis López,Guadalajara,Mexico,24
+5023,Carlos Gómez,CDMX,Mexico,51
+5024,Diego Pérez,Bogotá,Colombia,39
