@@ -31,7 +31,7 @@ class DataTransformer:
         self.transform_channel_dimension()
         self.transform_sales_fact()
         
-        print("\n✓ All data transformed successfully!")
+        print("\n[OK] All data transformed successfully!")
         return self.transformed_data
     
     def transform_date_dimension(self) -> pd.DataFrame:
@@ -60,7 +60,7 @@ class DataTransformer:
             'month_name': date_range.strftime('%B')
         })
         
-        print(f"  ✓ Created date dimension with {len(dim_date)} records")
+        print(f"  [OK] Created date dimension with {len(dim_date)} records")
         self.transformed_data['dim_date'] = dim_date
         return dim_date
     
@@ -91,7 +91,7 @@ class DataTransformer:
             dim_product['unit_price'] * 100
         ).round(2)
         
-        print(f"  ✓ Created product dimension with {len(dim_product)} records")
+        print(f"  [OK] Created product dimension with {len(dim_product)} records")
         print(f"    Brands: {dim_product['brand'].nunique()}, Categories: {dim_product['category'].nunique()}")
         
         self.transformed_data['dim_product'] = dim_product
@@ -119,7 +119,7 @@ class DataTransformer:
         self.customer_mapping = dict(zip(customers_df['customer_id'], dim_customer['customer_key']))
         self.product_mapping = None  # Will be set later
         
-        print(f"  ✓ Created customer dimension with {len(dim_customer)} records")
+        print(f"  [OK] Created customer dimension with {len(dim_customer)} records")
         print(f"    Countries: {dim_customer['country'].nunique()}")
         
         self.transformed_data['dim_customer'] = dim_customer
@@ -143,7 +143,7 @@ class DataTransformer:
         # Store mapping for fact table
         self.channel_mapping = dict(zip(channels_df['channel_id'], dim_channel['channel_key']))
         
-        print(f"  ✓ Created channel dimension with {len(dim_channel)} records")
+        print(f"  [OK] Created channel dimension with {len(dim_channel)} records")
         
         self.transformed_data['dim_channel'] = dim_channel
         return dim_channel
@@ -222,7 +222,7 @@ class DataTransformer:
         fact_sales = fact_sales.dropna(subset=['date_id', 'product_key', 'customer_key', 'channel_key'])
         dropped_rows = initial_rows - len(fact_sales)
         
-        print(f"  ✓ Created Sales Fact Table with {len(fact_sales)} records")
+        print(f"  [OK] Created Sales Fact Table with {len(fact_sales)} records")
         if dropped_rows > 0:
             print(f"    (Dropped {dropped_rows} rows with missing references)")
         

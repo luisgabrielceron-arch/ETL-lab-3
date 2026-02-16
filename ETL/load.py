@@ -26,13 +26,13 @@ class DataWarehouseLoader:
         """Connect to the database"""
         self.connection = sqlite3.connect(self.db_path)
         self.cursor = self.connection.cursor()
-        print(f"✓ Connected to database: {self.db_path}")
+        print(f"[OK] Connected to database: {self.db_path}")
     
     def disconnect(self):
         """Disconnect from the database"""
         if self.connection:
             self.connection.close()
-            print("✓ Disconnected from database")
+            print("[OK] Disconnected from database")
     
     def create_schema(self):
         """Create the data warehouse schema"""
@@ -116,10 +116,10 @@ class DataWarehouseLoader:
             """)
             
             self.connection.commit()
-            print("✓ Schema created successfully")
+            print("[OK] Schema created successfully")
             
         except sqlite3.Error as e:
-            print(f"✗ Error creating schema: {e}")
+            print(f"[ERROR] Error creating schema: {e}")
             raise
     
     def load_dimensions(self, transformed_data: dict):
@@ -130,27 +130,27 @@ class DataWarehouseLoader:
             # Load Date Dimension
             dim_date = transformed_data['dim_date']
             dim_date.to_sql('dim_date', self.connection, if_exists='append', index=False)
-            print(f"  ✓ Loaded {len(dim_date)} date records")
+            print(f"  [OK] Loaded {len(dim_date)} date records")
             
             # Load Product Dimension
             dim_product = transformed_data['dim_product']
             dim_product.to_sql('dim_product', self.connection, if_exists='append', index=False)
-            print(f"  ✓ Loaded {len(dim_product)} product records")
+            print(f"  [OK] Loaded {len(dim_product)} product records")
             
             # Load Customer Dimension
             dim_customer = transformed_data['dim_customer']
             dim_customer.to_sql('dim_customer', self.connection, if_exists='append', index=False)
-            print(f"  ✓ Loaded {len(dim_customer)} customer records")
+            print(f"  [OK] Loaded {len(dim_customer)} customer records")
             
             # Load Channel Dimension
             dim_channel = transformed_data['dim_channel']
             dim_channel.to_sql('dim_channel', self.connection, if_exists='append', index=False)
-            print(f"  ✓ Loaded {len(dim_channel)} channel records")
+            print(f"  [OK] Loaded {len(dim_channel)} channel records")
             
             self.connection.commit()
             
         except sqlite3.Error as e:
-            print(f"✗ Error loading dimensions: {e}")
+            print(f"[ERROR] Error loading dimensions: {e}")
             raise
     
     def load_fact_table(self, transformed_data: dict):
@@ -160,12 +160,12 @@ class DataWarehouseLoader:
         try:
             fact_sales = transformed_data['fact_sales']
             fact_sales.to_sql('fact_sales', self.connection, if_exists='append', index=False)
-            print(f"  ✓ Loaded {len(fact_sales)} sales records")
+            print(f"  [OK] Loaded {len(fact_sales)} sales records")
             
             self.connection.commit()
             
         except sqlite3.Error as e:
-            print(f"✗ Error loading fact table: {e}")
+            print(f"[ERROR] Error loading fact table: {e}")
             raise
     
     def verify_data_warehouse(self):
@@ -184,7 +184,7 @@ class DataWarehouseLoader:
             for table, description in tables.items():
                 result = self.cursor.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
                 count = result[0] if result else 0
-                print(f"  ✓ {description}: {count} records")
+                print(f"  [OK] {description}: {count} records")
             
             # Check referential integrity
             print("\nReferential Integrity Checks:")
@@ -194,26 +194,26 @@ class DataWarehouseLoader:
                 SELECT COUNT(*) FROM fact_sales f 
                 WHERE f.product_key NOT IN (SELECT product_key FROM dim_product)
             """).fetchone()[0]
-            print(f"  ✓ Orphaned product keys: {orphan_products}")
+            print(f"  [OK] Orphaned product keys: {orphan_products}")
             
             # Check for orphaned customer keys
             orphan_customers = self.cursor.execute("""
                 SELECT COUNT(*) FROM fact_sales f 
                 WHERE f.customer_key NOT IN (SELECT customer_key FROM dim_customer)
             """).fetchone()[0]
-            print(f"  ✓ Orphaned customer keys: {orphan_customers}")
+            print(f"  [OK] Orphaned customer keys: {orphan_customers}")
             
             # Check for orphaned channel keys
             orphan_channels = self.cursor.execute("""
                 SELECT COUNT(*) FROM fact_sales f 
                 WHERE f.channel_key NOT IN (SELECT channel_key FROM dim_channel)
             """).fetchone()[0]
-            print(f"  ✓ Orphaned channel keys: {orphan_channels}")
+            print(f"  [OK] Orphaned channel keys: {orphan_channels}")
             
-            print("\n✓ Data Warehouse is ready for analysis!")
+            print("\n[OK] Data Warehouse is ready for analysis!")
             
         except sqlite3.Error as e:
-            print(f"✗ Error verifying data warehouse: {e}")
+            print(f"[ERROR] Error verifying data warehouse: {e}")
     
     def load_all(self, transformed_data: dict):
         """Execute complete load process"""
@@ -225,7 +225,7 @@ class DataWarehouseLoader:
             self.verify_data_warehouse()
             self.disconnect()
         except Exception as e:
-            print(f"✗ Load process failed: {e}")
+            print(f"[ERROR] Load process failed: {e}")
             if self.connection:
                 self.disconnect()
             raise

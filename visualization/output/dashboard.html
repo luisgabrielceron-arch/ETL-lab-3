@@ -1,0 +1,687 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technology Retail Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            border-radius: 10px 10px 0 0;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        
+        nav {
+            background: white;
+            padding: 0 30px;
+            border-bottom: 1px solid #ecf0f1;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+        
+        nav button {
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        nav button:hover {
+            color: #2c3e50;
+        }
+        
+        nav button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: bold;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            height: 350px;
+        }
+        
+        .chart-container h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .data-table tr:hover {
+            background: #ecf0f1;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card h4 {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .metric-card .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+        
+        .kpi-title {
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            nav {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Technology Retail Analytics</h1>
+            <p class="subtitle">Interactive KPI Dashboard - Q1 2026</p>
+        </header>
+        
+        <nav>
+            <button class="tab-btn active" onclick="showTab('tab1')">KPI 1: Categories</button>
+            <button class="tab-btn" onclick="showTab('tab2')">KPI 2: Channels</button>
+            <button class="tab-btn" onclick="showTab('tab3')">KPI 3: Trends</button>
+            <button class="tab-btn" onclick="showTab('tab4')">KPI 4: Brands</button>
+            <button class="tab-btn" onclick="showTab('tab5')">KPI 5: Geography</button>
+        </nav>
+        
+        <div class="content">
+            <!-- KPI 1 -->
+            <div id="tab1" class="tab-content active">
+                <h2 class="kpi-title">KPI 1: Sales Volume & Revenue by Product Category</h2>
+                <div class="kpi-grid">
+                    <div class="chart-container">
+                        <h3>Revenue by Category</h3>
+                        <canvas id="chart1a"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Profit Distribution</h3>
+                        <canvas id="chart1b"></canvas>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Transactions</th>
+                            <th>Quantity</th>
+                            <th>Revenue</th>
+                            <th>Profit</th>
+                            <th>Avg Margin %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table1"></tbody>
+                </table>
+            </div>
+            
+            <!-- KPI 2 -->
+            <div id="tab2" class="tab-content">
+                <h2 class="kpi-title">KPI 2: Revenue by Sales Channel</h2>
+                <div class="kpi-grid">
+                    <div class="chart-container">
+                        <h3>Channel Revenue</h3>
+                        <canvas id="chart2a"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Revenue Distribution %</h3>
+                        <canvas id="chart2b"></canvas>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Transactions</th>
+                            <th>Quantity</th>
+                            <th>Revenue</th>
+                            <th>Profit</th>
+                            <th>Revenue %</th>
+                            <th>Avg Transaction</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table2"></tbody>
+                </table>
+            </div>
+            
+            <!-- KPI 3 -->
+            <div id="tab3" class="tab-content">
+                <h2 class="kpi-title">KPI 3: Monthly Sales Trends</h2>
+                <div class="kpi-grid">
+                    <div class="chart-container" style="grid-column: 1 / -1;">
+                        <h3>Monthly Revenue & Profit Trend</h3>
+                        <canvas id="chart3"></canvas>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Transactions</th>
+                            <th>Total Units</th>
+                            <th>Monthly Revenue</th>
+                            <th>Monthly Profit</th>
+                            <th>Avg Transaction</th>
+                            <th>Margin %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table3"></tbody>
+                </table>
+            </div>
+            
+            <!-- KPI 4 -->
+            <div id="tab4" class="tab-content">
+                <h2 class="kpi-title">KPI 4: Brand Profitability Ranking</h2>
+                <div class="kpi-grid">
+                    <div class="chart-container">
+                        <h3>Top 8 Brands by Profit</h3>
+                        <canvas id="chart4"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Brand Revenue vs Profit</h3>
+                        <canvas id="chart4b"></canvas>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Brand</th>
+                            <th>Transactions</th>
+                            <th>Total Units</th>
+                            <th>Revenue</th>
+                            <th>Profit</th>
+                            <th>Avg Margin %</th>
+                            <th>Profit Margin %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table4"></tbody>
+                </table>
+            </div>
+            
+            <!-- KPI 5 -->
+            <div id="tab5" class="tab-content">
+                <h2 class="kpi-title">KPI 5: Customer Geographic Distribution</h2>
+                <div class="kpi-grid">
+                    <div class="chart-container">
+                        <h3>Revenue by Country</h3>
+                        <canvas id="chart5a"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Customers vs Transactions</h3>
+                        <canvas id="chart5b"></canvas>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Country</th>
+                            <th>Unique Customers</th>
+                            <th>Transactions</th>
+                            <th>Total Units</th>
+                            <th>Revenue</th>
+                            <th>Profit</th>
+                            <th>Avg Transaction</th>
+                            <th>Margin %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table5"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Generated: 2026-02-16 14:57:03</p>
+            <p>Technology Retail Analytics Dashboard | Q1 2026 Data</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Tab switching
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Data
+        const data1 = [{"category": "SMARTPHONES", "transactions": 71, "total_quantity": 201, "total_revenue": 172081.85, "total_profit": 29841.37, "avg_margin": 17.68}, {"category": "LAPTOPS", "transactions": 16, "total_quantity": 47, "total_revenue": 75409.52, "total_profit": 14590.7, "avg_margin": 19.57}, {"category": "AUDIO", "transactions": 53, "total_quantity": 170, "total_revenue": 62059.19, "total_profit": 13392.69, "avg_margin": 21.23}, {"category": "NETWORKING", "transactions": 64, "total_quantity": 171, "total_revenue": 35173.54, "total_profit": 5314.59, "avg_margin": 15.73}, {"category": "ACCESSORIES", "transactions": 36, "total_quantity": 107, "total_revenue": 10880.23, "total_profit": 1920.92, "avg_margin": 15.66}];
+        const data2 = [{"channel": "Physical Store - Cali", "transactions": 88, "total_quantity": 284, "total_revenue": 141299.54, "total_profit": 25982.39, "revenue_pct": 39.74, "avg_transaction": 1605.68}, {"channel": "Physical Store - Bogota", "transactions": 88, "total_quantity": 242, "total_revenue": 129781.37, "total_profit": 24628.88, "revenue_pct": 36.5, "avg_transaction": 1474.79}, {"channel": "Online Store", "transactions": 64, "total_quantity": 170, "total_revenue": 84523.42, "total_profit": 14449.0, "revenue_pct": 23.77, "avg_transaction": 1320.68}];
+        const data3 = [{"month": 1, "month_name": "January", "transactions": 58, "total_units": 163, "monthly_revenue": 74481.14, "monthly_profit": 14302.9, "avg_transaction": 1284.16, "margin_pct": 19.2}, {"month": 2, "month_name": "February", "transactions": 57, "total_units": 163, "monthly_revenue": 84691.2, "monthly_profit": 16158.46, "avg_transaction": 1485.81, "margin_pct": 19.08}, {"month": 3, "month_name": "March", "transactions": 68, "total_units": 199, "monthly_revenue": 114679.35, "monthly_profit": 20198.26, "avg_transaction": 1686.46, "margin_pct": 17.61}, {"month": 4, "month_name": "April", "transactions": 57, "total_units": 171, "monthly_revenue": 81752.64, "monthly_profit": 14400.65, "avg_transaction": 1434.26, "margin_pct": 17.61}];
+        const data4 = [{"brand": "HP", "transactions": 51, "total_units": 147, "brand_revenue": 88210.05, "brand_profit": 17541.41, "avg_margin": 19.33, "profit_margin_pct": 19.89}, {"brand": "SAMSUNG", "transactions": 21, "total_units": 57, "brand_revenue": 60414.39, "brand_profit": 13510.49, "avg_margin": 20.27, "profit_margin_pct": 22.36}, {"brand": "XIAOMI", "transactions": 41, "total_units": 99, "brand_revenue": 79675.07, "brand_profit": 11147.87, "avg_margin": 15.44, "profit_margin_pct": 13.99}, {"brand": "LENOVO", "transactions": 39, "total_units": 116, "brand_revenue": 57951.65, "brand_profit": 9164.71, "avg_margin": 15.53, "profit_margin_pct": 15.81}, {"brand": "LOGITECH", "transactions": 32, "total_units": 97, "brand_revenue": 29453.42, "brand_profit": 5967.88, "avg_margin": 17.58, "profit_margin_pct": 20.26}, {"brand": "SONY", "transactions": 18, "total_units": 61, "brand_revenue": 14870.62, "brand_profit": 2829.49, "avg_margin": 20.17, "profit_margin_pct": 19.03}, {"brand": "APPLE", "transactions": 21, "total_units": 71, "brand_revenue": 10786.41, "brand_profit": 2455.57, "avg_margin": 19.64, "profit_margin_pct": 22.77}, {"brand": "ASUS", "transactions": 17, "total_units": 48, "brand_revenue": 14242.72, "brand_profit": 2442.85, "avg_margin": 16.25, "profit_margin_pct": 17.15}];
+        const data5 = [{"country": "MEXICO", "unique_customers": 12, "total_transactions": 128, "total_units": 387, "country_revenue": 191175.49, "country_profit": 34067.35, "avg_transaction": 1493.56, "margin_pct": 17.82}, {"country": "CHILE", "unique_customers": 6, "total_transactions": 58, "total_units": 159, "country_revenue": 91637.53, "country_profit": 18537.12, "avg_transaction": 1579.96, "margin_pct": 20.23}, {"country": "COLOMBIA", "unique_customers": 6, "total_transactions": 54, "total_units": 150, "country_revenue": 72791.31, "country_profit": 12455.8, "avg_transaction": 1347.99, "margin_pct": 17.11}];
+        
+        // Populate tables
+        function populateTable(elementId, data) {
+            const tbody = document.getElementById(elementId);
+            tbody.innerHTML = data.map(row => `
+                <tr>
+                    ${Object.values(row).map(val => `<td>${typeof val === 'number' ? val.toLocaleString('en-US', {maximumFractionDigits: 2}) : val}</td>`).join('')}
+                </tr>
+            `).join('');
+        }
+        
+        populateTable('table1', data1);
+        populateTable('table2', data2);
+        populateTable('table3', data3);
+        populateTable('table4', data4);
+        populateTable('table5', data5);
+        
+        // Chart 1a
+        const ctx1a = document.getElementById('chart1a').getContext('2d');
+        new Chart(ctx1a, {
+            type: 'bar',
+            data: {
+                labels: data1.map(d => d.category),
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: data1.map(d => d.total_revenue),
+                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `$${context.parsed.y.toLocaleString('en-US', {maximumFractionDigits: 2})}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Chart 1b
+        const ctx1b = document.getElementById('chart1b').getContext('2d');
+        const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'];
+        new Chart(ctx1b, {
+            type: 'doughnut',
+            data: {
+                labels: data1.map(d => d.category),
+                datasets: [{
+                    data: data1.map(d => d.total_profit),
+                    backgroundColor: colors.slice(0, data1.length),
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Chart 2a
+        const ctx2a = document.getElementById('chart2a').getContext('2d');
+        new Chart(ctx2a, {
+            type: 'bar',
+            data: {
+                labels: data2.map(d => d.channel),
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: data2.map(d => d.total_revenue),
+                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71'],
+                    borderWidth: 2,
+                    borderColor: 'rgba(0,0,0,0.2)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Chart 2b
+        const ctx2b = document.getElementById('chart2b').getContext('2d');
+        new Chart(ctx2b, {
+            type: 'pie',
+            data: {
+                labels: data2.map(d => d.channel),
+                datasets: [{
+                    data: data2.map(d => d.total_revenue),
+                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71'],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+        
+        // Chart 3
+        const ctx3 = document.getElementById('chart3').getContext('2d');
+        new Chart(ctx3, {
+            type: 'line',
+            data: {
+                labels: data3.map(d => d.month_name),
+                datasets: [
+                    {
+                        label: 'Monthly Revenue',
+                        data: data3.map(d => d.monthly_revenue),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'Monthly Profit',
+                        data: data3.map(d => d.monthly_profit),
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Chart 4
+        const topBrands = data4.slice(0, 8);
+        const ctx4 = document.getElementById('chart4').getContext('2d');
+        new Chart(ctx4, {
+            type: 'horizontalBar',
+            data: {
+                labels: topBrands.map(d => d.brand),
+                datasets: [{
+                    label: 'Profit ($)',
+                    data: topBrands.map(d => d.brand_profit),
+                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Chart 4b - Bubble chart
+        const ctx4b = document.getElementById('chart4b').getContext('2d');
+        new Chart(ctx4b, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Brand Performance',
+                    data: data4.map(d => ({
+                        x: d.brand_revenue,
+                        y: d.brand_profit,
+                        r: Math.sqrt(d.profit_margin_pct) * 2
+                    })),
+                    backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Revenue ($)'
+                        },
+                        ticks: {
+                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Profit ($)'
+                        },
+                        ticks: {
+                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Chart 5a
+        const ctx5a = document.getElementById('chart5a').getContext('2d');
+        new Chart(ctx5a, {
+            type: 'bar',
+            data: {
+                labels: data5.map(d => d.country),
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: data5.map(d => d.country_revenue),
+                    backgroundColor: ['#e74c3c', '#3498db', '#2ecc71'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Chart 5b
+        const ctx5b = document.getElementById('chart5b').getContext('2d');
+        new Chart(ctx5b, {
+            type: 'bar',
+            data: {
+                labels: data5.map(d => d.country),
+                datasets: [
+                    {
+                        label: 'Unique Customers',
+                        data: data5.map(d => d.unique_customers),
+                        backgroundColor: '#9b59b6'
+                    },
+                    {
+                        label: 'Transactions',
+                        data: data5.map(d => d.total_transactions),
+                        backgroundColor: '#f39c12'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+        

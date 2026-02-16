@@ -13,10 +13,14 @@ Dependencies: sqlite3, pandas, matplotlib, seaborn
 
 import sqlite3
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for subprocess execution
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import warnings
+import sys
+import os
 
 warnings.filterwarnings('ignore')
 
@@ -24,31 +28,41 @@ warnings.filterwarnings('ignore')
 class KPIDashboard:
     """Generate KPI visualizations from the data warehouse."""
     
-    def __init__(self, db_path: str = "data_warehouse.db"):
+    def __init__(self, db_path: str = None):
         """
         Initialize dashboard with database connection.
         
         Args:
-            db_path: Path to SQLite database
+            db_path: Path to SQLite database (default: data/warehouse/datawarehouse.db)
         """
+        if db_path is None:
+            # Get the project root directory
+            project_root = Path(__file__).parent.parent
+            db_path = str(project_root / "data" / "warehouse" / "datawarehouse.db")
+        
         self.db_path = db_path
         self.conn = None
-        self.output_dir = Path("visualization/output")
+        self.output_dir = Path(__file__).parent / "output"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
     def connect(self) -> None:
         """Establish database connection."""
         try:
+            if not Path(self.db_path).exists():
+                raise FileNotFoundError(f"Database not found: {self.db_path}")
+            
             self.conn = sqlite3.connect(self.db_path)
-            print(f"✓ Connected to database: {self.db_path}")
+            print(f"[OK] Connected to database: {Path(self.db_path).name}")
         except sqlite3.Error as e:
-            raise Exception(f"✗ Database connection failed: {e}")
+            raise Exception(f"[ERROR] Database connection failed: {e}")
+        except FileNotFoundError as e:
+            raise Exception(f"[ERROR] {e}")
     
     def disconnect(self) -> None:
         """Close database connection."""
         if self.conn:
             self.conn.close()
-            print("✓ Database connection closed")
+            print("[OK] Database connection closed")
     
     def query_database(self, query: str) -> pd.DataFrame:
         """
@@ -64,7 +78,7 @@ class KPIDashboard:
             df = pd.read_sql_query(query, self.conn)
             return df
         except Exception as e:
-            raise Exception(f"✗ Query execution failed: {e}")
+            raise Exception(f"[ERROR] Query execution failed: {e}")
     
     def generate_kpi1_revenue_by_category(self) -> None:
         """
@@ -115,7 +129,7 @@ class KPIDashboard:
         
         plt.tight_layout()
         plt.savefig(self.output_dir / "kpi1_revenue_by_category.png", dpi=300, bbox_inches='tight')
-        print("✓ KPI 1 visualization saved: kpi1_revenue_by_category.png")
+        print("[OK] KPI 1 visualization saved: kpi1_revenue_by_category.png")
         plt.close()
     
     def generate_kpi2_revenue_by_channel(self) -> None:
@@ -167,7 +181,7 @@ class KPIDashboard:
         plt.suptitle('KPI 2: Revenue by Sales Channel', fontsize=14, fontweight='bold', y=1.00)
         plt.tight_layout()
         plt.savefig(self.output_dir / "kpi2_revenue_by_channel.png", dpi=300, bbox_inches='tight')
-        print("✓ KPI 2 visualization saved: kpi2_revenue_by_channel.png")
+        print("[OK] KPI 2 visualization saved: kpi2_revenue_by_channel.png")
         plt.close()
     
     def generate_kpi3_monthly_trends(self) -> None:
@@ -227,7 +241,7 @@ class KPIDashboard:
         
         plt.tight_layout()
         plt.savefig(self.output_dir / "kpi3_monthly_trends.png", dpi=300, bbox_inches='tight')
-        print("✓ KPI 3 visualization saved: kpi3_monthly_trends.png")
+        print("[OK] KPI 3 visualization saved: kpi3_monthly_trends.png")
         plt.close()
     
     def generate_kpi4_brand_profitability(self) -> None:
@@ -274,7 +288,7 @@ class KPIDashboard:
         
         plt.tight_layout()
         plt.savefig(self.output_dir / "kpi4_brand_profitability.png", dpi=300, bbox_inches='tight')
-        print("✓ KPI 4 visualization saved: kpi4_brand_profitability.png")
+        print("[OK] KPI 4 visualization saved: kpi4_brand_profitability.png")
         plt.close()
     
     def generate_comprehensive_dashboard(self) -> None:
@@ -380,7 +394,7 @@ class KPIDashboard:
                     fontsize=16, fontweight='bold', y=0.98)
         
         plt.savefig(self.output_dir / "kpi_dashboard_comprehensive.png", dpi=300, bbox_inches='tight')
-        print("✓ Comprehensive dashboard saved: kpi_dashboard_comprehensive.png")
+        print("[OK] Comprehensive dashboard saved: kpi_dashboard_comprehensive.png")
         plt.close()
     
     def generate_summary_report(self) -> None:
@@ -404,13 +418,13 @@ class KPIDashboard:
         
         # Generate report
         report = f"""
-╔════════════════════════════════════════════════════════════╗
-║     TECHNOLOGY RETAIL - KPI DASHBOARD SUMMARY REPORT      ║
-║              Q1 2026 (January - April)                     ║
-╚════════════════════════════════════════════════════════════╝
+========================================================
+    TECHNOLOGY RETAIL - KPI DASHBOARD SUMMARY REPORT  
+    Q1 2026 (January - April)                     
+========================================================
 
 PERFORMANCE METRICS:
-──────────────────────────────────────────────────────────
+--------------------------------------------------
 
 Total Transactions:       {row['total_transactions']:.0f}
 Total Revenue:            ${row['total_revenue']:,.2f}
@@ -421,28 +435,28 @@ Average Transaction:      ${row['avg_transaction_value']:,.2f}
 Average Margin:           {row['avg_margin']:.2f}%
 
 PROFIT MARGIN:
-──────────────────────────────────────────────────────────
+--------------------------------------------------
 Overall Margin:           {(row['total_profit']/row['total_revenue']*100):.2f}%
 Recommendation:           Maintain inventory of high-margin 
                          items (Networking, Audio products)
 
 KEY INSIGHTS:
-──────────────────────────────────────────────────────────
-✓ Strong growth trajectory (+6.7% monthly average)
-✓ Healthy profit margins (28-32% range)
-✓ Good average transaction value ($500-600)
-✓ Digital transformation opportunity (online < industry avg)
+--------------------------------------------------
+[OK] Strong growth trajectory (+6.7% monthly average)
+[OK] Healthy profit margins (28-32% range)
+[OK] Good average transaction value ($500-600)
+[OK] Digital transformation opportunity (online < industry avg)
 
 VISUALIZATIONS GENERATED:
-──────────────────────────────────────────────────────────
-✓ kpi1_revenue_by_category.png
-✓ kpi2_revenue_by_channel.png
-✓ kpi3_monthly_trends.png
-✓ kpi4_brand_profitability.png
-✓ kpi_dashboard_comprehensive.png
+--------------------------------------------------
+[OK] kpi1_revenue_by_category.png
+[OK] kpi2_revenue_by_channel.png
+[OK] kpi3_monthly_trends.png
+[OK] kpi4_brand_profitability.png
+[OK] kpi_dashboard_comprehensive.png
 
 NEXT STEPS:
-──────────────────────────────────────────────────────────
+--------------------------------------------------
 1. Export dashboard images for management presentations
 2. Schedule weekly KPI review meetings
 3. Implement digital transformation initiative (online +10%)
@@ -450,16 +464,16 @@ NEXT STEPS:
 5. Optimize product mix (prioritize high-margin categories)
 
 Report Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
-════════════════════════════════════════════════════════════
+========================================================
         """
         
         # Save report
         report_path = self.output_dir / "kpi_summary_report.txt"
-        with open(report_path, 'w') as f:
+        with open(report_path, 'w', encoding='utf-8') as f:
             f.write(report)
         
         print(report)
-        print(f"\n✓ Summary report saved: {report_path.name}")
+        print(f"\n[OK] Summary report saved: {report_path.name}")
     
     def generate_all_visualizations(self) -> None:
         """Generate all KPI visualizations and reports."""
@@ -471,24 +485,55 @@ Report Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
             self.connect()
             
             print("Generating individual KPI charts...")
-            self.generate_kpi1_revenue_by_category()
-            self.generate_kpi2_revenue_by_channel()
-            self.generate_kpi3_monthly_trends()
-            self.generate_kpi4_brand_profitability()
+            try:
+                self.generate_kpi1_revenue_by_category()
+            except Exception as e:
+                print(f"[ERROR] KPI 1 generation failed: {e}")
+            
+            try:
+                self.generate_kpi2_revenue_by_channel()
+            except Exception as e:
+                print(f"[ERROR] KPI 2 generation failed: {e}")
+            
+            try:
+                self.generate_kpi3_monthly_trends()
+            except Exception as e:
+                print(f"[ERROR] KPI 3 generation failed: {e}")
+            
+            try:
+                self.generate_kpi4_brand_profitability()
+            except Exception as e:
+                print(f"[ERROR] KPI 4 generation failed: {e}")
             
             print("\nGenerating comprehensive dashboard...")
-            self.generate_comprehensive_dashboard()
+            try:
+                self.generate_comprehensive_dashboard()
+            except Exception as e:
+                print(f"[ERROR] Comprehensive dashboard generation failed: {e}")
             
             print("\nGenerating summary report...")
-            self.generate_summary_report()
+            try:
+                self.generate_summary_report()
+            except Exception as e:
+                print(f"[ERROR] Summary report generation failed: {e}")
             
             print("\n" + "="*60)
-            print("  ALL VISUALIZATIONS GENERATED SUCCESSFULLY")
+            print("  VISUALIZATIONS GENERATED SUCCESSFULLY")
             print("="*60)
             print(f"\nOutput directory: {self.output_dir.resolve()}")
             
+            # Verify output files
+            output_files = list(self.output_dir.glob("*.png")) + list(self.output_dir.glob("*.txt"))
+            if output_files:
+                print(f"\nGenerated {len(output_files)} files:")
+                for f in sorted(output_files):
+                    size = f.stat().st_size / 1024
+                    print(f"  [OK] {f.name} ({size:.1f} KB)")
+            
         except Exception as e:
-            print(f"\n✗ Error generating visualizations: {e}")
+            print(f"\n[ERROR] Error generating visualizations: {e}")
+            import traceback
+            traceback.print_exc()
             raise
         finally:
             self.disconnect()
@@ -496,8 +541,8 @@ Report Generated: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 def main():
     """Main execution function."""
-    # Initialize dashboard
-    dashboard = KPIDashboard("data_warehouse.db")
+    # Initialize dashboard (use default path)
+    dashboard = KPIDashboard()
     
     # Generate all visualizations
     dashboard.generate_all_visualizations()

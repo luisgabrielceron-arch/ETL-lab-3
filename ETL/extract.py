@@ -29,7 +29,7 @@ class DataExtractor:
         expected_columns = ['product_id', 'name', 'category', 'brand', 'unit_price', 'unit_cost']
         self._validate_schema(df, expected_columns, 'products')
         
-        print(f"✓ Extracted {len(df)} products")
+        print(f"[OK] Extracted {len(df)} products")
         self.extracted_data['products'] = df
         return df
     
@@ -42,7 +42,7 @@ class DataExtractor:
         expected_columns = ['customer_id', 'name', 'city', 'country', 'age']
         self._validate_schema(df, expected_columns, 'customers')
         
-        print(f"✓ Extracted {len(df)} customers")
+        print(f"[OK] Extracted {len(df)} customers")
         self.extracted_data['customers'] = df
         return df
     
@@ -56,20 +56,20 @@ class DataExtractor:
                           'channel_id', 'quantity', 'unit_price_sale']
         self._validate_schema(df, expected_columns, 'sales')
         
-        print(f"✓ Extracted {len(df)} sales records")
+        print(f"[OK] Extracted {len(df)} sales records")
         self.extracted_data['sales'] = df
         return df
     
     def extract_channels(self) -> pd.DataFrame:
         """Extract channels table from CSV"""
-        file_path = os.path.join(self.data_path, '..', 'channels.csv')
+        file_path = os.path.join(self.data_path, 'channels.csv')
         df = pd.read_csv(file_path)
         
         # Validate schema
         expected_columns = ['channel_id', 'channel']
         self._validate_schema(df, expected_columns, 'channels')
         
-        print(f"✓ Extracted {len(df)} channels")
+        print(f"[OK] Extracted {len(df)} channels")
         self.extracted_data['channels'] = df
         return df
     
@@ -81,7 +81,7 @@ class DataExtractor:
         self.extract_sales()
         self.extract_channels()
         
-        print(f"\n✓ All data extracted successfully!")
+        print(f"\n[OK] All data extracted successfully!")
         return self.extracted_data
     
     @staticmethod
