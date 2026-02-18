@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Technology Retail Analytics Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         * {
@@ -295,7 +296,7 @@
                         <canvas id="chart4"></canvas>
                     </div>
                     <div class="chart-container">
-                        <h3>Brand Revenue vs Profit</h3>
+                        <h3>Brand Profit Margin %</h3>
                         <canvas id="chart4b"></canvas>
                     </div>
                 </div>
@@ -347,19 +348,28 @@
         </div>
         
         <footer>
-            <p>Generated: 2026-02-16 14:57:03</p>
+            <p>Generated: 2026-02-18 10:50:39</p>
             <p>Technology Retail Analytics Dashboard | Q1 2026 Data</p>
         </footer>
     </div>
     
     <script>
         // Tab switching
+        let currentCharts = {};
+        
         function showTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             
             document.getElementById(tabId).classList.add('active');
             event.target.classList.add('active');
+            
+            // Destroy previous charts
+            Object.values(currentCharts).forEach(chart => chart.destroy());
+            currentCharts = {};
+            
+            // Create charts for the current tab
+            createChartsForTab(tabId);
         }
         
         // Data
@@ -385,302 +395,314 @@
         populateTable('table4', data4);
         populateTable('table5', data5);
         
-        // Chart 1a
-        const ctx1a = document.getElementById('chart1a').getContext('2d');
-        new Chart(ctx1a, {
-            type: 'bar',
-            data: {
-                labels: data1.map(d => d.category),
-                datasets: [{
-                    label: 'Revenue ($)',
-                    data: data1.map(d => d.total_revenue),
-                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
-                    borderColor: 'rgba(102, 126, 234, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => `$${context.parsed.y.toLocaleString('en-US', {maximumFractionDigits: 2})}`
-                        }
-                    }
+        function createChartsForTab(tabId) {
+            if (tabId === 'tab1') {
+                createTab1Charts();
+            } else if (tabId === 'tab2') {
+                createTab2Charts();
+            } else if (tabId === 'tab3') {
+                createTab3Charts();
+            } else if (tabId === 'tab4') {
+                createTab4Charts();
+            } else if (tabId === 'tab5') {
+                createTab5Charts();
+            }
+        }
+        
+        function createTab1Charts() {
+            // Chart 1a
+            const ctx1a = document.getElementById('chart1a').getContext('2d');
+            currentCharts['chart1a'] = new Chart(ctx1a, {
+                type: 'bar',
+                data: {
+                    labels: data1.map(d => d.category),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: data1.map(d => d.total_revenue),
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `$${context.parsed.y.toLocaleString('en-US', {maximumFractionDigits: 2})}`
+                            }
                         }
-                    }
-                }
-            }
-        });
-        
-        // Chart 1b
-        const ctx1b = document.getElementById('chart1b').getContext('2d');
-        const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'];
-        new Chart(ctx1b, {
-            type: 'doughnut',
-            data: {
-                labels: data1.map(d => d.category),
-                datasets: [{
-                    data: data1.map(d => d.total_profit),
-                    backgroundColor: colors.slice(0, data1.length),
-                    borderColor: 'white',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-        
-        // Chart 2a
-        const ctx2a = document.getElementById('chart2a').getContext('2d');
-        new Chart(ctx2a, {
-            type: 'bar',
-            data: {
-                labels: data2.map(d => d.channel),
-                datasets: [{
-                    label: 'Revenue ($)',
-                    data: data2.map(d => d.total_revenue),
-                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71'],
-                    borderWidth: 2,
-                    borderColor: 'rgba(0,0,0,0.2)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => `$${(value/1000).toFixed(0)}K`
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Chart 2b
-        const ctx2b = document.getElementById('chart2b').getContext('2d');
-        new Chart(ctx2b, {
-            type: 'pie',
-            data: {
-                labels: data2.map(d => d.channel),
-                datasets: [{
-                    data: data2.map(d => d.total_revenue),
-                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71'],
-                    borderColor: 'white',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' }
-                }
-            }
-        });
-        
-        // Chart 3
-        const ctx3 = document.getElementById('chart3').getContext('2d');
-        new Chart(ctx3, {
-            type: 'line',
-            data: {
-                labels: data3.map(d => d.month_name),
-                datasets: [
-                    {
-                        label: 'Monthly Revenue',
-                        data: data3.map(d => d.monthly_revenue),
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3
                     },
-                    {
-                        label: 'Monthly Profit',
-                        data: data3.map(d => d.monthly_profit),
-                        borderColor: '#2ecc71',
-                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    y: {
-                        ticks: {
-                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `$${(value/1000).toFixed(0)}K`
+                            }
                         }
                     }
                 }
-            }
-        });
-        
-        // Chart 4
-        const topBrands = data4.slice(0, 8);
-        const ctx4 = document.getElementById('chart4').getContext('2d');
-        new Chart(ctx4, {
-            type: 'horizontalBar',
-            data: {
-                labels: topBrands.map(d => d.brand),
-                datasets: [{
-                    label: 'Profit ($)',
-                    data: topBrands.map(d => d.brand_profit),
-                    backgroundColor: 'rgba(102, 126, 234, 0.7)',
-                    borderColor: 'rgba(102, 126, 234, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+            });
+            
+            // Chart 1b
+            const ctx1b = document.getElementById('chart1b').getContext('2d');
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'];
+            currentCharts['chart1b'] = new Chart(ctx1b, {
+                type: 'doughnut',
+                data: {
+                    labels: data1.map(d => d.category),
+                    datasets: [{
+                        data: data1.map(d => d.total_profit),
+                        backgroundColor: colors.slice(0, data1.length),
+                        borderColor: 'white',
+                        borderWidth: 2
+                    }]
                 },
-                scales: {
-                    x: {
-                        ticks: {
-                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
                         }
                     }
                 }
-            }
-        });
+            });
+        }
         
-        // Chart 4b - Bubble chart
-        const ctx4b = document.getElementById('chart4b').getContext('2d');
-        new Chart(ctx4b, {
-            type: 'bubble',
-            data: {
-                datasets: [{
-                    label: 'Brand Performance',
-                    data: data4.map(d => ({
-                        x: d.brand_revenue,
-                        y: d.brand_profit,
-                        r: Math.sqrt(d.profit_margin_pct) * 2
-                    })),
-                    backgroundColor: 'rgba(102, 126, 234, 0.6)',
-                    borderColor: 'rgba(102, 126, 234, 1)',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+        function createTab2Charts() {
+            // Chart 2a
+            const ctx2a = document.getElementById('chart2a').getContext('2d');
+            currentCharts['chart2a'] = new Chart(ctx2a, {
+                type: 'bar',
+                data: {
+                    labels: data2.map(d => d.channel),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: data2.map(d => d.total_revenue),
+                        backgroundColor: ['#3498db', '#e74c3c', '#2ecc71'],
+                        borderWidth: 2,
+                        borderColor: 'rgba(0,0,0,0.2)'
+                    }]
                 },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Revenue ($)'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `$${(value/1000).toFixed(0)}K`
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Chart 2b
+            const ctx2b = document.getElementById('chart2b').getContext('2d');
+            currentCharts['chart2b'] = new Chart(ctx2b, {
+                type: 'pie',
+                data: {
+                    labels: data2.map(d => d.channel),
+                    datasets: [{
+                        data: data2.map(d => d.total_revenue),
+                        backgroundColor: ['#3498db', '#e74c3c', '#2ecc71'],
+                        borderColor: 'white',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+        
+        function createTab3Charts() {
+            // Chart 3
+            const ctx3 = document.getElementById('chart3').getContext('2d');
+            currentCharts['chart3'] = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: data3.map(d => d.month_name),
+                    datasets: [
+                        {
+                            label: 'Monthly Revenue',
+                            data: data3.map(d => d.monthly_revenue),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3
                         },
-                        ticks: {
-                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                        {
+                            label: 'Monthly Profit',
+                            data: data3.map(d => d.monthly_profit),
+                            borderColor: '#2ecc71',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3
                         }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Profit ($)'
-                        },
-                        ticks: {
-                            callback: (value) => `$${(value/1000).toFixed(0)}K`
-                        }
-                    }
-                }
-            }
-        });
-        
-        // Chart 5a
-        const ctx5a = document.getElementById('chart5a').getContext('2d');
-        new Chart(ctx5a, {
-            type: 'bar',
-            data: {
-                labels: data5.map(d => d.country),
-                datasets: [{
-                    label: 'Revenue ($)',
-                    data: data5.map(d => d.country_revenue),
-                    backgroundColor: ['#e74c3c', '#3498db', '#2ecc71'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+                    ]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => `$${(value/1000).toFixed(0)}K`
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: (value) => `$${(value/1000).toFixed(0)}K`
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
         
-        // Chart 5b
-        const ctx5b = document.getElementById('chart5b').getContext('2d');
-        new Chart(ctx5b, {
-            type: 'bar',
-            data: {
-                labels: data5.map(d => d.country),
-                datasets: [
-                    {
-                        label: 'Unique Customers',
-                        data: data5.map(d => d.unique_customers),
-                        backgroundColor: '#9b59b6'
+        function createTab4Charts() {
+            // Chart 4
+            const topBrands = data4.slice(0, 8);
+            const ctx4 = document.getElementById('chart4').getContext('2d');
+            currentCharts['chart4'] = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: topBrands.map(d => d.brand),
+                    datasets: [{
+                        label: 'Profit ($)',
+                        data: topBrands.map(d => d.brand_profit),
+                        backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
                     },
-                    {
-                        label: 'Transactions',
-                        data: data5.map(d => d.total_transactions),
-                        backgroundColor: '#f39c12'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    scales: {
+                        x: {
+                            ticks: {
+                                callback: (value) => `$${(value/1000).toFixed(0)}K`
+                            }
+                        }
                     }
                 }
-            }
-        });
+            });
+            
+            // Chart 4b - Bar chart
+            const ctx4b = document.getElementById('chart4b').getContext('2d');
+            currentCharts['chart4b'] = new Chart(ctx4b, {
+                type: 'bar',
+                data: {
+                    labels: data4.map(d => d.brand),
+                    datasets: [{
+                        label: 'Profit Margin %',
+                        data: data4.map(d => d.profit_margin_pct),
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `${value}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createTab5Charts() {
+            // Chart 5a
+            const ctx5a = document.getElementById('chart5a').getContext('2d');
+            currentCharts['chart5a'] = new Chart(ctx5a, {
+                type: 'bar',
+                data: {
+                    labels: data5.map(d => d.country),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: data5.map(d => d.country_revenue),
+                        backgroundColor: ['#e74c3c', '#3498db', '#2ecc71'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => `$${(value/1000).toFixed(0)}K`
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Chart 5b
+            const ctx5b = document.getElementById('chart5b').getContext('2d');
+            currentCharts['chart5b'] = new Chart(ctx5b, {
+                type: 'bar',
+                data: {
+                    labels: data5.map(d => d.country),
+                    datasets: [
+                        {
+                            label: 'Unique Customers',
+                            data: data5.map(d => d.unique_customers),
+                            backgroundColor: '#9b59b6'
+                        },
+                        {
+                            label: 'Transactions',
+                            data: data5.map(d => d.total_transactions),
+                            backgroundColor: '#f39c12'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize first tab
+        createChartsForTab('tab1');
     </script>
 </body>
 </html>
